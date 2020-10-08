@@ -1,0 +1,2 @@
+language="python3"
+run=" poetry install && export FLASK_APP=user_grouping && export FLASK_ENV=development && flask run --host '0.0.0.0'"

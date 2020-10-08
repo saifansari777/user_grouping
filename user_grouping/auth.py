@@ -4,7 +4,7 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from bson import ObjectId
 from .db import init_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -16,6 +16,8 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        email = request.form["email"]
+        user_group = request.form["user_group"]
         db = init_db()
         error = None
 
@@ -28,7 +30,9 @@ def register():
             error = 'User {} is already registered.'.format(username)
 
         if error is None:
-            db.User.insert_one({"username":username, "password":password})
+            db.User.insert_one({"username":username,                        "password":password,
+                                "email":email,
+                                "user_group":user_group})
             return redirect(url_for('auth.login'))
 
         flash(error)
@@ -36,7 +40,7 @@ def register():
     return render_template('auth/register.html')
 
 
-bp.route('/login', methods=('GET', 'POST'))
+@bp.route('/login', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -44,16 +48,16 @@ def login():
         db = init_db()
         error = None
         user = db.User.find_one({"username":username})
-
+        print(user, password, user["password"])
         if user is None:
             error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
+        elif not user['password'] == password:
             error = 'Incorrect password.'
 
         if error is None:
             session.clear()
-            session['user_id'] = user['_id']
-            return redirect(url_for('index'))
+            session['username'] = user['username']
+            return redirect(url_for('dashboard.dashboard'))
 
         flash(error)
 
@@ -62,12 +66,12 @@ def login():
 
 @bp.before_app_request
 def load_logged_in_user():
-    user_id = session.get('user_id')
+    username = session.get('username')
 
-    if user_id is None:
+    if username is None:
         g.user = None
     else:
-        g.user = init_db().User.find_one({"_id":user_id})
+        g.user = init_db().User.find_one({"username":username})
 
 
 @bp.route('/logout')

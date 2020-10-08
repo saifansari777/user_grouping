@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Dashboard{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{% if g.user["user_group"] == "Admin" %}
+<h1> Admin Dashboard </h1>
+{% elif g.user["user_group"] == "Teascher" %}
+<h1> Student Dashboard </h1>
+{% elif g.user["user_group"] == "Student" %}
+<h1> Student Dashboard </h1>
+{% else %}
+<h1> User Group Does Not Exists </h1>
+{% endif %}
+{% endblock %}

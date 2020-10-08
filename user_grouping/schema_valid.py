@@ -11,8 +11,8 @@ post_validator = {
                "bsonType": "string",
                "description": "must be a string and is required"
             },
-            "author":{
-                "bsonType": "string",
+            "author_id":{
+                "bsonType": "objectId",
                "description": "must be a string and is required"
             }
             }
@@ -22,7 +22,7 @@ post_validator = {
 user_validator = {
       "$jsonSchema": {
          "bsonType": "object",
-         "required": [ "username", "email", "password" ],
+         "required": [ "username", "email", "password", "user_group" ],
          "properties": {
             "username": {
                "bsonType": "string",
@@ -41,6 +41,11 @@ user_validator = {
                "minLength":8,
                "maxLength":32,
                "description": "must be a string and is required and shoul be between 8 to 32 characters"
+
+            },
+            "user_group" :{
+              "enum":["Admin", "Teacher", "Student"],
+              "description":"have to choose one from these"
 
             }
             
